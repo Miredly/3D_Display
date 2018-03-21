@@ -32,16 +32,34 @@ def move_pos(pos, pol):
 	# print("NEW POS: " + str(pos))
 	return(pos)
 
+step = 1
+
 while(True):
 	# loopstart = raw_input("STARTING THE LOOP!")
-	xyzpos = []
-	print("XPOS: " + str(xpos))
-	xpol = check_pol(xpos, xpol)
-	xpos = move_pos(xpos, xpol)
+	if (step > 14):
+		step = 1
 
-	print("YPOS: " + str(ypos))
-	ypol = check_pol(ypos, ypol)
-	ypos = move_pos(ypos, ypol)
+	xyzpos = []
+	
+	if(step != 14):
+
+		xpol = check_pol(xpos, xpol)
+		xpos = move_pos(xpos, xpol)
+		print("XPOS: " + str(xpos))
+
+		ypol = check_pol(ypos, ypol)
+		ypos = move_pos(ypos, ypol)
+		print("YPOS: " + str(ypos))
+
+	
+
+	if(step % 2 == 0):
+		if(zpos == 5):
+			zpol = False
+		if(zpos == 1):
+			zpol = True
+		# zpol = check_pol(zpos, zpol)
+		zpos = move_pos(zpos, zpol)
 
 	xyzpos.append(xpos)
 	xyzpos.append(ypos)
@@ -56,7 +74,8 @@ while(True):
 	arduino.write(str(xyzpos[1]))
 	# sleep(0.1)
 	arduino.write(str(xyzpos[2]))
-	sleep(0.2)
+	sleep(0.040) #This needs to be significantly higher than the delay times on the Arduino side or else it gets ahead of itself
 	# print("READ: " + str(arduino.read_until('\n')))
 	# readingxyz = raw_input("Time to read!")
-	
+	# breakpoint = raw_input("BREAK " + str(step))
+	step += 1

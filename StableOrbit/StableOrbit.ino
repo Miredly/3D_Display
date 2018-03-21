@@ -15,7 +15,7 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(PIXEL_COUNT, PIXEL_PIN, NEO_GRB + NE
 
 #define MICROPHONE 14
 #define GAIN_CONTROL 3
-//this sets the input voltage range (input sentitivity)
+
 //adjust this value for higher (< 1024) or lower (= 1024)
 #define INPUT_LEVEL 550
 //this sets our 'sample rate'.  I went through a bunch of trial and error to
@@ -41,13 +41,11 @@ typedef struct{
  * function definitions
  * ***************************/
 void initCube();
-void initMicrophone();
-void FFTJoy();
 void setPixel(int x, int y, int z, color col);
+void orbital(color col);
 color getPixel(int x, int y, int z);
 color colorMap(float val, float min, float max);
 color lerpColor(color a, color b, int val, int min, int max);
-short FFT(short int dir,int m,float *x,float *y);
 
 /*********************************
  * FFTJoy variables *
@@ -76,6 +74,7 @@ int earthY = 0;
 int earthZ = 0;
 
 int serialIn = 0;
+int globalDelay = 1;
 
 void setup() {
   strip.begin(); // this initializes the NeoPixel library.
@@ -105,14 +104,11 @@ void loop() {
   setPixel(4, 2, 4, sun);
   
   if(Serial.available()){
-//    Serial.flush();
-//    Serial.println("Data in");
     setPixel(earthX, earthZ, earthY, black);
 
     for(int inx = 0; inx < 3; inx++){
       coords[inx] = (Serial.read() - 48);
-//      Serial.println(coords[inx], DEC);
-      delay(5);
+      delay(globalDelay);
     }
 
     earthX = coords[0];
@@ -121,19 +117,17 @@ void loop() {
     Serial.println(earthY);
     earthZ = coords[2];
     Serial.println(earthZ);
-//    Serial.println(serialIn);
-    setPixel(earthX, 2, earthY, earth);
+    setPixel(earthX, earthZ, earthY, earth);
     Serial.println(".");
   }
   else{
-//    Serial.println("No data received...");
-    delay(50);
+    delay(globalDelay);
   }
 
   //this sends the updated pixel color to the hardware.
   strip.show();
 //  Serial.println("\n");
-  delay(50);
+  delay(globalDelay); //50 x 0.2 works
 }
 
 /********************************************
@@ -146,79 +140,13 @@ void initCube()
     black.blue=0;
 }
 
-void initMicrophone()
-{
-  pinMode(GAIN_CONTROL, OUTPUT);
-  digitalWrite(GAIN_CONTROL, LOW);
-  analogReference(INTERNAL); //sets the resolution (volts / unit)
-                             //e.g., DEFAULT=5V (0.0049V / unit), INTERNAL=1.1V (0.0011V / unit)
-}
-
-/********************************************
- *   FFT JOY functions
- * *****************************************/
- void FFTJoy(){
-    for(int i=0;i<pow(2,M);i++)
-    {
-        real[i]=analogRead(MICROPHONE)-INPUT_LEVEL;
-        delayMicroseconds(SAMPLE_RATE);
-
-      //  Serial.print(real[i]);
-        imaginary[i]=0;
-    }
-    FFT(1, M, real, imaginary);
-    for(int i=0;i<pow(2,M);i++)
-    {
-        imaginary[i]=sqrt(pow(imaginary[i],2)+pow(real[i],2));
-//        Serial.print(imaginary[i]);
-        if(imaginary[i]>maxVal)
-            maxVal=imaginary[i];
-    }
-    if(maxVal>100)
-        maxVal-=0.5;
-//    Serial.println();
-    for(int i=0;i<pow(2,M)/2;i++)
-    {
-        imaginary[i]=SIDE*imaginary[i]/maxVal;
-        int y;
-        for(y=0;y<=imaginary[i];y++)
-            setPixel(i,y,SIDE-1,colorMap(y,0,SIDE));
-        for(;y<SIDE;y++)
-            setPixel(i,y,SIDE-1,black);
-    }
-    for(int z=0;z<SIDE-1;z++)
-        for(int x=0;x<SIDE;x++)
-            for(int y=0;y<SIDE;y++)
-            {
-                color col=getPixel(x,y,z+1);
-                setPixel(x,y,z,col);
-//                char output[50];
-//                sprintf(output, "%d %d %d:  %d %d %d", x,y,z+1, col.red, col.green, col.blue);
-//                Serial.println(output);
-            }
-
-    sample++;
-    if(sample>=pow(2,M))
-        sample-=pow(2,M);
-}
 
 
 /********************************************
  *   Pixel control functions
  * *****************************************/
 
-void earthOrbit(int earthSpeed){
-  //Earth X/Y range = 1 - 6
-  earthX = 0;
-  earthY = 4;
-  for(int i = 0; i < 4; i++){
-    setPixel(earthX-1, 2, earthY-1, black);
-    setPixel(i, 2, i, earth);
-    earthX++;
-    earthY++;
-    delay(earthSpeed);
-  }
-}
+
 
 //sets a pixel at position (x,y,z) to the col parameter's color
 void setPixel(int x, int y, int z, color col)
@@ -300,3 +228,27 @@ color lerpColor(color a, color b, int val, int min, int max)
     lerped.blue=a.blue+(b.blue-a.blue)*(val-min)/(max-min);
     return lerped;
 }
+
+//void orbital(color col){
+//    if(Serial.available()){
+//    setPixel(earthX, earthZ, earthY, black);
+//
+//    for(int inx = 0; inx < 3; inx++){
+//      coords[inx] = (Serial.read() - 48);
+//      delay(1);
+//    }
+//
+//    earthX = coords[0];
+//    Serial.println(earthX);
+//    earthY = coords[1];
+//    Serial.println(earthY);
+//    earthZ = coords[2];
+//    Serial.println(earthZ);
+//    setPixel(earthX, 2, earthY, earth);
+//    Serial.println(".");
+//  }
+//  else{
+//    delay(1);
+//  }
+//}
+
