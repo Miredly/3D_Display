@@ -104,7 +104,7 @@ void loop() {
   setPixel(4, 2, 4, sun);
   
   if(Serial.available()){
-    setPixel(earthX, earthZ, earthY, black);
+//    setPixel(earthX, earthZ, earthY, black);
 
     for(int inx = 0; inx < 3; inx++){
       coords[inx] = (Serial.read() - 48);
@@ -123,7 +123,9 @@ void loop() {
   else{
     delay(globalDelay);
   }
-
+//  for(int inc = 0; inc < 3; inc++){
+  fadePixel();
+//  }
   //this sends the updated pixel color to the hardware.
   strip.show();
 //  Serial.println("\n");
@@ -167,6 +169,48 @@ color getPixel(int x, int y, int z)
     pixelColor.blue=col&255;
     return pixelColor;
 }
+
+void fadePixel(){
+  for (int x = 0; x < 8; x++){
+    for (int y = 0; y < 8; y++){
+      for (int z = 0; z < 8; z++){
+        color pixel = getPixel(x, y, z);
+          if(pixel.red > 0){
+            pixel.red -= 5;
+          }
+          if(pixel.green > 0){
+            pixel.green -= 5;
+          }
+          if(pixel.blue > 0){
+            pixel.blue -= 5;
+          }
+          setPixel(x, y, z, pixel);
+      }
+    }
+  }
+}
+
+//int breaThe = 0;
+//uint32_t Red = pixels.Color(255, 0, 0);
+//
+//for (breaThe; breaThe < 5; breaThe++) {
+//   for (brightIncrement = 0; brightIncrement < 240; brightIncrement = brightIncrement + 2) {
+//     for (i = 0; i < ledNum; i++) {
+//       pixels.setPixelColor(i, Green, brightIncrement);
+//       pixels.show();
+//     }
+//   }
+//   for (brightIncrement = 240; brightIncrement > 0; brightIncrement = brightIncrement - 2) {
+//     for (i = 0; i < ledNum; i++) {
+//       pixels.setPixelColor(i, Green, brightIncrement);
+//       pixels.show();
+//     }
+//   }
+//   for (i = 0; i < ledNum; i++) {
+//     pixels.setPixelColor(i, 0, 0, 0);
+//     pixels.show();
+//   }
+//}  
 
 //returns a color from a set of colors fading from blue to green to red and back again
 //the color is returned based on where the parameter *val* falls between the parameters
