@@ -124,7 +124,7 @@ void loop() {
     delay(globalDelay);
   }
 //  for(int inc = 0; inc < 3; inc++){
-  fadePixel();
+  fadePixel(1);
 //  }
   //this sends the updated pixel color to the hardware.
   strip.show();
@@ -170,19 +170,19 @@ color getPixel(int x, int y, int z)
     return pixelColor;
 }
 
-void fadePixel(){
+void fadePixel(int fadespeed){
   for (int x = 0; x < 8; x++){
     for (int y = 0; y < 8; y++){
       for (int z = 0; z < 8; z++){
         color pixel = getPixel(x, y, z);
           if(pixel.red > 0){
-            pixel.red -= 5;
+            pixel.red -= fadespeed;
           }
           if(pixel.green > 0){
-            pixel.green -= 5;
+            pixel.green -= fadespeed;
           }
           if(pixel.blue > 0){
-            pixel.blue -= 5;
+            pixel.blue -= fadespeed;
           }
           setPixel(x, y, z, pixel);
       }
@@ -295,4 +295,5 @@ color lerpColor(color a, color b, int val, int min, int max)
 //    delay(1);
 //  }
 //}
+
 

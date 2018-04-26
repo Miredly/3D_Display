@@ -3,7 +3,7 @@ from time import sleep
 from random import randint
 
 
-arduino = arduinoserial.SerialPort("/dev/cu.usbmodem141411", 115200)
+arduino = arduinoserial.SerialPort("/dev/cu.usbmodem1411", 115200)
 # print arduino.read_until('\n')
 
 xpol = True
