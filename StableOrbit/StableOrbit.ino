@@ -124,7 +124,7 @@ void loop() {
     delay(globalDelay);
   }
 //  for(int inc = 0; inc < 3; inc++){
-  fadePixel(1);
+  fadePixel(5);
 //  }
   //this sends the updated pixel color to the hardware.
   strip.show();
